@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+
 import Button from '../../../components/UI/Button/Button';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
@@ -109,7 +111,7 @@ class ContactData extends Component {
 
 		const order = {
 			ingredients: this.props.ingredients,
-			price: this.props.price,
+			price: this.props.totalPrice,
 			order: formData
 		}
 		axios.post('/orders.json', order)
@@ -143,7 +145,8 @@ class ContactData extends Component {
 		let updatedFormElement = {...updated[inputIdentifier]};
 		updatedFormElement.value = event.target.value;
 		updatedFormElement.valid =
-			this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+			this.checkValidity(updatedFormElement.value,
+				updatedFormElement.validation);
 		let formIsValid = true;
 		for (let inputIdentifier in updated) {
 			formIsValid = updated[inputIdentifier].valid && formIsValid;
@@ -164,7 +167,9 @@ class ContactData extends Component {
 		}
 		let form = (
 			<form onSubmit={this.orderHandler}>
-				{formElementsArray.map(element => (
+				{formElementsArray.map(element => {
+					console.log(element.id);
+					return (
 					<Input
 						key={element.id}
 						elementType={element.config.elementType}
@@ -174,8 +179,8 @@ class ContactData extends Component {
 						shouldValidate={element.config.validation}
 						touched={element.config.touched}
 						changed={(event) => this.inputChangedHandler(event, element.id)}
-					/>
-				))}
+					/>)
+				})}
 				<Button btnType={'Success'} disabled={!this.state.formIsValid}>ORDER</Button>
 			</form>
 		);
@@ -191,4 +196,11 @@ class ContactData extends Component {
 	}
 }
 
-export default ContactData;
+const mapStateToProps = state => {
+	return {
+		ingredients: state.ingredients.ingredients,
+		totalPrice: state.ingredients.totalPrice
+	}
+}
+
+export default connect(mapStateToProps)(ContactData);
